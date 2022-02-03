@@ -30,7 +30,7 @@ pipeline {
     TF_VAR_group_org_admins="${param.group_org_admins}"
     TF_VAR_group_billing_admins="${param.group_billing_admins}"
     TF_VAR_default_region="${param.default_region}"
-    TF_VAR_org_id="${param.org_id}"
+    //TF_VAR_org_id="${param.org_id}"
   }
   stages {
     // [START tf-init, tf-validate]
