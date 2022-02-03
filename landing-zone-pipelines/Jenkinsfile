@@ -18,6 +18,20 @@ pipeline {
   agent {
       label "terraform-exec"
   }
+  parameters {
+    string(name: 'org_id',               description: 'The Organization ID for GCP')
+    string(name: 'billing_account',      description: 'The Billing Account for GCP')
+    string(name: 'group_org_admins',     description: 'The Group Organization Admins for GCP')
+    string(name: 'group_billing_admins', description: 'The Group Billing Admins for GCP')
+    string(name: 'default_region',       description: 'The Default Region for GCP')
+  }
+  environment {
+    TF_VAR_org_id               = ${param.org_id}
+    TF_VAR_billing_account      = ${param.billing_account}
+    TF_VAR_group_org_admins     = ${param.group_org_admins}
+    TF_VAR_group_billing_admins = ${param.group_billing_admins}
+    TF_VAR_default_region       = ${param.default_region}
+  }
   stages {
     // [START tf-init, tf-validate]
     stage('TF init & validate') {
