@@ -9,5 +9,5 @@ subnet_name = "jenkins-subnet"
 jenkins_k8s_config = "jenkins-k8s-config"
 
 github_repo = "automated-lz"
-github_token = "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"
+github_token = "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"
 github_username = "prateek2408"

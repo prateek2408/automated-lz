@@ -195,7 +195,7 @@ master:
                               label: "terraform-exec"
                               containers:
                                 - name: "terraform"
-                                  image: "hashicorp/terraform:0.12.29"
+                                  image: "hashicorp/terraform:1.1.5"
                                   alwaysPullImage: false
                                   workingDir: "/home/jenkins/agent"
                                   ttyEnabled: true
