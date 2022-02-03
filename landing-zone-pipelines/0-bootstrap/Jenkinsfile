@@ -30,7 +30,7 @@ pipeline {
 	  echo "******* At environment: ${env} ********"
 	  echo "*************************************************"
 	  terraform init || exit 1
-	  terraform validate || exit 1
+	  terraform validate || exit 1'''
       }
      }
     }
@@ -46,7 +46,7 @@ pipeline {
 	  echo "*************** TERRAFOM PLAN******************"
 	  echo "******* At environment: ${env} ********"
 	  echo "*************************************************"
-	  terraform plan || exit 1
+	  terraform plan || exit 1'''
         }
       }
     }
@@ -62,11 +62,10 @@ pipeline {
 	  echo "*************** TERRAFOM APPLY******************"
 	  echo "******* At environment: ${env} ********"
 	  echo "*************************************************"
-	  terraform apply || exit 1
+	  terraform apply || exit 1'''
       }
     }
   }
   // [END tf-apply]
  }
 }
-
