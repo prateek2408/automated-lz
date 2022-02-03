@@ -20,7 +20,6 @@
  *****************************************/
 module "enables-google-apis" {
   source  = "terraform-google-modules/project-factory/google//modules/project_services"
-  version = "11.0.0"
 
   project_id = var.project_id
 
@@ -41,7 +40,6 @@ module "enables-google-apis" {
  *****************************************/
 module "jenkins-vpc" {
   source  = "terraform-google-modules/network/google"
-  version = "~> 3.0"
 
   project_id   = module.enables-google-apis.project_id
   network_name = var.network_name
@@ -72,8 +70,7 @@ module "jenkins-vpc" {
   Jenkins GKE
  *****************************************/
 module "jenkins-gke" {
-  source                   = "terraform-google-modules/kubernetes-engine/google//modules/beta-public-cluster/"
-  version                  = "~> 15.0"
+  source                   = "terraform-google-modules/kubernetes-engine/google"
   project_id               = module.enables-google-apis.project_id
   name                     = "jenkins"
   regional                 = false
@@ -86,7 +83,6 @@ module "jenkins-gke" {
   logging_service          = "logging.googleapis.com/kubernetes"
   monitoring_service       = "monitoring.googleapis.com/kubernetes"
   remove_default_node_pool = true
-  service_account          = "create"
   identity_namespace       = "${module.enables-google-apis.project_id}.svc.id.goog"
   node_metadata            = "GKE_METADATA_SERVER"
   node_pools = [
@@ -110,89 +106,3 @@ resource "google_project_iam_member" "gke" {
   member = "serviceAccount:${module.jenkins-gke.service_account}"
 }
 
-/*****************************************
-  Jenkins Workload Identity
- *****************************************/
-module "workload_identity" {
-  source              = "terraform-google-modules/kubernetes-engine/google//modules/workload-identity"
-  version             = "~> 15.0"
-  project_id          = module.enables-google-apis.project_id
-  name                = "jenkins-wi-${module.jenkins-gke.name}"
-  namespace           = "default"
-  use_existing_k8s_sa = false
-}
-
-# enable GSA to add and delete pods for jenkins builders
-resource "google_project_iam_member" "cluster-dev" {
-  project = module.enables-google-apis.project_id
-  role    = "roles/container.developer"
-  member  = module.workload_identity.gcp_service_account_fqn
-}
-
-/*****************************************
-  K8S secrets for configuring K8S executers
- *****************************************/
-resource "kubernetes_secret" "jenkins-secrets" {
-  metadata {
-    name = var.jenkins_k8s_config
-  }
-  data = {
-    project_id          = module.enables-google-apis.project_id
-    kubernetes_endpoint = "https://${module.jenkins-gke.endpoint}"
-    ca_certificate      = module.jenkins-gke.ca_certificate
-    jenkins_tf_ksa      = module.workload_identity.k8s_service_account_name
-  }
-}
-
-/*****************************************
-  K8S secrets for GH
- *****************************************/
-resource "kubernetes_secret" "gh-secrets" {
-  metadata {
-    name = "github-secrets"
-  }
-  data = {
-    github_username = var.github_username
-    github_repo     = var.github_repo
-    github_token    = var.github_token
-  }
-}
-
-/*****************************************
-  Grant Jenkins SA Permissions to store
-  TF state for Jenkins Pipelines
- *****************************************/
-resource "google_storage_bucket_iam_member" "tf-state-writer" {
-  bucket = var.tfstate_gcs_backend
-  role   = "roles/storage.admin"
-  member = module.workload_identity.gcp_service_account_fqn
-}
-
-/*****************************************
-  Grant Jenkins SA Permissions project editor
- *****************************************/
-resource "google_project_iam_member" "jenkins-project" {
-  project = module.enables-google-apis.project_id
-  role    = "roles/editor"
-
-  member = module.workload_identity.gcp_service_account_fqn
-
-}
-
-data "local_file" "helm_chart_values" {
-  filename = "${path.module}/values.yaml"
-}
-
-resource "helm_release" "jenkins" {
-  name       = "jenkins"
-  repository = "https://charts.helm.sh/stable"
-  chart      = "jenkins"
-  version    = "1.9.18"
-  timeout    = 1200
-
-  values = [data.local_file.helm_chart_values.content]
-
-  depends_on = [
-    kubernetes_secret.gh-secrets,
-  ]
-}

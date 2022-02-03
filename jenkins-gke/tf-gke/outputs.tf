@@ -36,15 +36,15 @@ output "cluster_name" {
   value       = module.jenkins-gke.name
 }
 
-output "k8s_service_account_name" {
-  description = "Name of k8s service account."
-  value       = module.workload_identity.k8s_service_account_name
-}
+#output "k8s_service_account_name" {
+#  description = "Name of k8s service account."
+#  value       = module.workload_identity.k8s_service_account_name
+#}
 
-output "gcp_service_account_email" {
-  description = "Email address of GCP service account."
-  value       = module.workload_identity.gcp_service_account_email
-}
+#output "gcp_service_account_email" {
+#  description = "Email address of GCP service account."
+#  value       = module.workload_identity.gcp_service_account_email
+#}
 
 output "jenkins_k8s_config_secrets" {
   description = "Name of the secret required to configure k8s executers on Jenkins"
