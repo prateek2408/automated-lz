@@ -25,33 +25,14 @@ pipeline {
       steps {
         container('terraform') {
           sh '''
-          if [[ $CHANGE_TARGET ]]; then
-            TARGET_ENV=$CHANGE_TARGET
-          else
-            TARGET_ENV=$BRANCH_NAME
-          fi
-
-          if [ -d "example-pipelines/environments/${TARGET_ENV}/" ]; then
-            cd example-pipelines/environments/${TARGET_ENV}
-            terraform init
-            terraform validate
-          else
-            for dir in landing-zone-pipelines/stages/*/
-            do 
-              cd ${dir}
-              env=${dir%*/}
-              env=${env#*/}
-              echo ""
-              echo "*************** TERRAFOM INIT and VALIDATE ******************"
-              echo "******* At environment: ${env} ********"
-              echo "*************************************************"
-              terraform init || exit 1
-              terraform validate || exit 1
-              cd ../../../
-            done
-          fi'''
-        }
+	  echo ""
+	  echo "*************** TERRAFOM INIT and VALIDATE ******************"
+	  echo "******* At environment: ${env} ********"
+	  echo "*************************************************"
+	  terraform init || exit 1
+	  terraform validate || exit 1
       }
+     }
     }
     // [END tf-init, tf-validate]
 
@@ -61,29 +42,11 @@ pipeline {
       steps {
         container('terraform') {
           sh '''
-          if [[ $CHANGE_TARGET ]]; then
-            TARGET_ENV=$CHANGE_TARGET
-          else
-            TARGET_ENV=$BRANCH_NAME
-          fi
-         
-          if [ -d "example-pipelines/environments/${TARGET_ENV}/" ]; then
-            cd example-pipelines/environments/${TARGET_ENV}
-            terraform plan
-          else
-            for dir in landing-zone-pipelines/stages/*/
-            do 
-              cd ${dir}
-              env=${dir%*/}
-              env=${env#*/}
-              echo ""
-              echo "*************** TERRAFOM PLAN ******************"
-              echo "******* At environment: ${env} ********"
-              echo "*************************************************"
-              terraform plan || exit 1
-              cd ../../../
-            done
-          fi'''
+	  echo ""
+	  echo "*************** TERRAFOM PLAN******************"
+	  echo "******* At environment: ${env} ********"
+	  echo "*************************************************"
+	  terraform plan || exit 1
         }
       }
     }
@@ -95,19 +58,14 @@ pipeline {
       steps {
         container('terraform') {
           sh '''
-          TARGET_ENV=$BRANCH_NAME
-
-          if [ -d "example-pipelines/environments/${TARGET_ENV}/" ]; then
-            cd example-pipelines/environments/${TARGET_ENV}
-            terraform apply -input=false -auto-approve
-          else
-            echo "*************** SKIPPING APPLY ******************"
-            echo "Branch '$TARGET_ENV' does not represent an official environment."
-            echo "*************************************************"
-          fi'''
-        }
+	  echo ""
+	  echo "*************** TERRAFOM APPLY******************"
+	  echo "******* At environment: ${env} ********"
+	  echo "*************************************************"
+	  terraform apply || exit 1
       }
     }
-    // [END tf-apply]
   }
+  // [END tf-apply]
+ }
 }
