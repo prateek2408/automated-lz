@@ -14,10 +14,6 @@
  * limitations under the License.
  */
 
-variable "project_id" {
-  description = "The project id to deploy Jenkins on GKE"
-}
-
 variable "tfstate_gcs_backend" {
   description = "Name of the GCS bucket to use as a backend for Terraform State"
   default     = "TFSTATE_GCS_BACKEND"
@@ -71,5 +67,4 @@ variable "github_token" {
 
 variable "github_repo" {
   description = "Github repo name."
-  default     = "solutions-terraform-jenkins-gitops"
 }
