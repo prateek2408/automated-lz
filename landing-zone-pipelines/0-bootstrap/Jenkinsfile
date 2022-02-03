@@ -29,6 +29,7 @@ pipeline {
 	  echo "*************** TERRAFOM INIT and VALIDATE ******************"
 	  echo "******* At environment: ${env} ********"
 	  echo "*************************************************"
+          echo $JOB_NAME
           cd landing-zone-pipelines/0-bootstrap
 	  terraform init || exit 1
 	  terraform validate || exit 1
